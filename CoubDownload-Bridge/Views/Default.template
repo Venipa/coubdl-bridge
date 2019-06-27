@@ -1,0 +1,10 @@
+
+NAME
+	CoubDownload-Bridge Version: 0.1.0
+
+SYNTAX
+	CoubDownload-Bridge [args] [options]
+
+DESCRIPTION
+	Download Coubs via Custom URL Protocol or via argument
+

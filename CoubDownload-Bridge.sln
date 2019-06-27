@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29020.237
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoubDownload-Bridge", "CoubDownload-Bridge\CoubDownload-Bridge.csproj", "{33494DE4-6F89-48DF-841A-A43CDAF18849}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{33494DE4-6F89-48DF-841A-A43CDAF18849}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33494DE4-6F89-48DF-841A-A43CDAF18849}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33494DE4-6F89-48DF-841A-A43CDAF18849}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33494DE4-6F89-48DF-841A-A43CDAF18849}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {31016722-765A-4B79-897E-F8C8C29188C6}
+	EndGlobalSection
+EndGlobal
