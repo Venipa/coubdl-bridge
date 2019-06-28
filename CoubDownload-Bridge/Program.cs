@@ -1,6 +1,7 @@
 ﻿using Consolas.Core;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -21,8 +22,8 @@ namespace CoubDownload_Bridge
         }
         void createPrerequisites(string[] args)
         {
-            Console.WriteLine(this.currentPath);
-            Console.WriteLine(string.Join(";", args));
+            Debug.WriteLine(this.currentPath);
+            Debug.WriteLine(string.Join(";", args));
             if (!Directory.Exists(this.tempPath))
             {
                 Directory.CreateDirectory(this.tempPath);
