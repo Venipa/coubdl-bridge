@@ -13,6 +13,7 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  releaseFolder: '$(build.sourcesdirectory)\CoubDownload-Bridge\bin\$(buildConfiguration)'
 
 steps:
 - task: NuGetToolInstaller@0
@@ -26,3 +27,37 @@ steps:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(releaseFolder)'
+    artifact: 'Build'
+
+- task: CmdLine@2
+  displayName: 'Creating Release Directory'
+  inputs:
+    script: 'mkdir r'
+    workingDirectory: '$(releaseFolder)'
+- task: CmdLine@2
+  displayName: 'Copying executable'
+  inputs:
+    script: 'cp -r CoubDownload-Bridge.exe r/'
+    workingDirectory: '$(releaseFolder)'
+- task: CmdLine@2
+  displayName: 'Copying ffmpeg processor'
+  inputs:
+    script: 'cp -r FFMPEG/ r/'
+    workingDirectory: '$(releaseFolder)'
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(releaseFolder)/r/'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/rev$(Build.BuildId).zip'
+    replaceExistingArchive: true
+- task: GitHubRelease@0
+  inputs:
+    gitHubConnection: 'Venipa-Releases'
+    repositoryName: '$(Build.Repository.Name)'
+    tagSource: manual
+    tag: $(Build.BuildNumber)
+    assets: '$(Build.ArtifactStagingDirectory)/rev$(Build.BuildId).zip'
