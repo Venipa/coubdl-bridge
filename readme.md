@@ -1,4 +1,4 @@
-# Coub Bridge
+# Coub Bridge ([License](blob/master/license.md))
 
 ## Build
 
