@@ -9,6 +9,10 @@ using System.Threading.Tasks;
 
 namespace CoubDownload_Bridge
 {
+    public static class App
+    {
+        public static Config Config { get; set; }
+    }
     class Program : ConsoleApp<Program>
     {
 
@@ -16,6 +20,15 @@ namespace CoubDownload_Bridge
         private string tempPath { get => Path.Combine(this.currentPath, "tmp"); }
         static void Main(string[] args)
         {
+            var config = new Config();
+            if (!config.Exists())
+            {
+                config.Save();
+            } else
+            {
+                config.Load();
+            }
+            App.Config = config;
             var prg = new Program();
             prg.createPrerequisites(args);
             Match(args);

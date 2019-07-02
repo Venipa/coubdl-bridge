@@ -18,7 +18,7 @@ namespace CoubDownload_Bridge.Commands
         public string CoubId { get; private set; }
         private string currentPath { get => AppDomain.CurrentDomain.BaseDirectory; }
         private string tempPath { get => Path.Combine(this.currentPath, "tmp"); }
-        private string outputPath { get => Path.Combine(this.currentPath, "output"); }
+        private string outputPath { get => App.Config.outputPath; }
         private string ffmpegPath { get => Path.Combine(this.currentPath, "FFMPEG", "ffmpeg.exe"); }
         public string Execute(DownloadArgs args)
         {
@@ -69,7 +69,21 @@ namespace CoubDownload_Bridge.Commands
             {
                 Directory.CreateDirectory(this.tempPath);
             }
-            ffmpeg.ExecuteAsync($"-i \"{videoInput}\" -i {audioInput} -codec copy -shortest \"{resultOutput}\"").Wait();
+            if (App.Config.spanVideoToAudio || args.full)
+            {
+                var vid = new MediaFile(videoInput);
+                var aud = new MediaFile(audioInput);
+                if (vid.FileInfo.Length >= aud.FileInfo.Length)
+                {
+                    ffmpeg.ExecuteAsync($"-i \"{videoInput}\" -stream_loop -1 -i {audioInput} -c:v copy -shortest -map 0:v:0 -map 1:a:0 -y \"{resultOutput}\"").Wait();
+                } else
+                {
+                    ffmpeg.ExecuteAsync($"-stream_loop -1 -i \"{videoInput}\" -i {audioInput} -c:v copy -shortest -map 0:v:0 -map 1:a:0 -y \"{resultOutput}\"").Wait();
+                }
+            } else
+            {
+                ffmpeg.ExecuteAsync($"-i \"{videoInput}\" -i {audioInput} -codec copy -shortest \"{resultOutput}\"").Wait();
+            }
             return resultOutput;
             return new HelpCommand().Execute(new HelpArgs { Help = true });
         }
