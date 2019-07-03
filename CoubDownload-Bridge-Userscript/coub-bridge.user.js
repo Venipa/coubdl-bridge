@@ -37,34 +37,40 @@
     var checkCoubs = function() {
         var coubs = document.querySelectorAll('.coubs-list .coub[coub-block]:not(.timeline-banner), .coub-page > .coub-block-col .coub[coub-block]');
         var coubRelated = document.querySelectorAll('.suggests-block-col .suggest__list > .suggest__item');
-        log.debug(coubs, coubRelated);
 
-        coubs.forEach(function(x) {
-            var controls = x.querySelector('.description__controls');
-            if (controls.querySelectorAll('#' + buttonId).length === 0) {
-                var coubId = x.getAttribute('data-permalink');
-                var downloadBtn = downloadButton();
-                downloadBtn.id = buttonId;
-                downloadBtn.href = "coubdl-bridge://" + coubId;
-                controls.prepend(downloadBtn);
-            }
-        });
-        coubRelated.forEach(function(x) {
-            if (x.querySelectorAll('#' + buttonId).length === 0) {
-                var coubId = x.getAttribute('data-permalink');
-                var downloadBtn = downloadButton();
-                downloadBtn.id = buttonId;
-                downloadBtn.href = "coubdl-bridge://" + coubId;
-                downloadBtn.style.padding = '4px 6px';
-                downloadBtn.style.position = 'absolute';
-                downloadBtn.style.top = 0;
-                downloadBtn.style.right = 0;
-                downloadBtn.style.marginTop = '8px';
-                downloadBtn.style.marginRight = '8px';
-                downloadBtn.style.zIndex = 9999;
-                x.prepend(downloadBtn);
-            }
-        });
+        if (coubs) {
+            coubs.forEach(function(x) {
+                if (!x || !x.querySelector) {
+                    return;
+                }
+                var controls = x.querySelector('.description__controls');
+                if (controls && controls.querySelectorAll && controls.querySelectorAll('#' + buttonId).length === 0) {
+                    var coubId = x.getAttribute('data-permalink');
+                    var downloadBtn = downloadButton();
+                    downloadBtn.id = buttonId;
+                    downloadBtn.href = "coubdl-bridge://" + coubId;
+                    controls.prepend(downloadBtn);
+                }
+            });
+        }
+        if (coubRelated) {
+            coubRelated.forEach(function(x) {
+                if (x && x.querySelectorAll && x.querySelectorAll('#' + buttonId).length === 0) {
+                    var coubId = x.getAttribute('data-permalink');
+                    var downloadBtn = downloadButton();
+                    downloadBtn.id = buttonId;
+                    downloadBtn.href = "coubdl-bridge://" + coubId;
+                    downloadBtn.style.padding = '4px 6px';
+                    downloadBtn.style.position = 'absolute';
+                    downloadBtn.style.top = 0;
+                    downloadBtn.style.right = 0;
+                    downloadBtn.style.marginTop = '8px';
+                    downloadBtn.style.marginRight = '8px';
+                    downloadBtn.style.zIndex = 9999;
+                    x.prepend(downloadBtn);
+                }
+            });
+        }
     };
     var worker;
     var workerFunc = function() {
@@ -73,5 +79,4 @@
         worker = setInterval(workerFunc, 2500);
     };
     workerFunc();
-    log.debug(worker);
 })();
