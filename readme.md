@@ -8,5 +8,17 @@
 
 ## Releases
 
-- [Latest Release](releases/latest)
-- [Latest Tags](tags/latest)
+- [Latest Release](./releases/latest)
+- [Latest Tags](./tags/latest)
+
+## Install / Register
+
+Windows (x86)
+```asciidoc
+- Download Release rev...zip
+- Unpack it to your desired folder
+- open destination folder
+- run cmd in folder
+- type "CoubDownloadBridge.exe -register" in the running cmd
+- approve the UAC Request
+```
