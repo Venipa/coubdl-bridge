@@ -35,7 +35,7 @@
     log.debug('boot');
     const buttonId = 'coubdl-download';
     var checkCoubs = function() {
-        var coubs = document.querySelectorAll('.coubs-list .coub[coub-block]:not(.timeline-banner), .coub-page > .coub-block-col .coub[coub-block]');
+        var coubs = document.querySelectorAll('#coubchat .coub[coub-block]:not(.timeline-banner), .coubs-list .coub[coub-block]:not(.timeline-banner), .coub-page > .coub-block-col .coub[coub-block]');
         var coubRelated = document.querySelectorAll('.suggests-block-col .suggest__list > .suggest__item');
 
         if (coubs) {
