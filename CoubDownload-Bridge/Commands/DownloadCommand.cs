@@ -68,8 +68,8 @@ namespace CoubDownload_Bridge.Commands
             var audio = data.FileVersions.Html5.Audio.High?.Url ?? data.FileVersions.Html5.Audio.Med.Url;
             var video = data.FileVersions.Html5.Video.High?.Url ?? data.FileVersions.Html5.Video.Med.Url;
             var wc = new WebClient();
-            var videoInput = Path.Combine(tempPath, $"video_{data.Id}.temp");
-            var audioInput = Path.Combine(tempPath, $"audio_{data.Id}.temp");
+            var videoInput = Path.Combine(tempPath, $"video_{data.Id}-({Guid.NewGuid().ToString()}).temp");
+            var audioInput = Path.Combine(tempPath, $"audio_{data.Id}-({Guid.NewGuid().ToString()}).temp");
             var resultOutput = Path.Combine(outputPath, $"{CoubId}.mp4");
             var resultOutputAudio = Path.Combine(outputPath, $"{CoubId}.mp3");
             if (args.audio != true)
