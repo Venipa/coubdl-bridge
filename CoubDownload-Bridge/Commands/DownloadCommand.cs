@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -30,6 +31,15 @@ namespace CoubDownload_Bridge.Commands
             if (CoubId.ToLower().StartsWith("coubdl-bridge"))
             {
                 CoubId = CoubId.Substring("coubdl-bridge://".Length);
+                var csId = CoubId.Split('/');
+                if (csId.Length > 1)
+                {
+                    CoubId = csId.FirstOrDefault();
+                    if (csId.LastOrDefault() == "audio")
+                    {
+                        args.audio = true;
+                    }
+                }
             }
             if (CoubId.EndsWith("/"))
             {
