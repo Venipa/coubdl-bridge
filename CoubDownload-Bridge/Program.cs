@@ -18,6 +18,7 @@ namespace CoubDownload_Bridge
 
         private string currentPath { get => AppDomain.CurrentDomain.BaseDirectory; }
         private string tempPath { get => Path.Combine(this.currentPath, "tmp"); }
+        [STAThread]
         static void Main(string[] args)
         {
             var config = new Config();

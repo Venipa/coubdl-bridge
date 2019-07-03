@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace CoubDownload_Bridge.Commands
 {
@@ -85,7 +86,16 @@ namespace CoubDownload_Bridge.Commands
             var ffmpeg = new Engine(this.ffmpegPath);
             if (args.audio == true)
             {
+                if (File.Exists(resultOutputAudio))
+                {
+                    File.Delete(resultOutputAudio);
+                }
                 File.Move(audioInput, resultOutputAudio);
+
+                if (App.Config.copyFileToClipboard)
+                {
+                    Clipboard.SetText(resultOutputAudio);
+                }
                 return resultOutputAudio;
             }
             if (App.Config.spanVideoToAudio || args.full == true)
@@ -108,8 +118,11 @@ namespace CoubDownload_Bridge.Commands
                 File.Delete(videoInput);
                 File.Delete(audioInput);
             } catch { }
+            if(App.Config.copyFileToClipboard)
+            {
+                Clipboard.SetText(resultOutput);
+            }
             return resultOutput;
-            return new HelpCommand().Execute(new HelpArgs { Help = true });
         }
     }
 }

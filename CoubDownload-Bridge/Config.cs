@@ -14,6 +14,8 @@ namespace CoubDownload_Bridge
         public Config() { }
         // Config Section
 
+        [JsonProperty("copyFileToClipboard")]
+        public bool copyFileToClipboard { get; private set; } = false;
         [JsonProperty("spanVideoToAudio")]
         public bool spanVideoToAudio { get; private set; } = false;
 
@@ -31,6 +33,7 @@ namespace CoubDownload_Bridge
             {
                 _self.GetProperty(x.Name).SetValue(this, x.GetValue(config));
             });
+            this.Save();
         }
         public bool Exists()
         {
