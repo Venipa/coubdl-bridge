@@ -43,6 +43,14 @@ namespace CoubDownload_Bridge.Commands
                     CoubId = reg.Match(CoubId)?.Groups[3]?.Value ?? CoubId;
                 }
             }
+            if (!Directory.Exists(this.outputPath))
+            {
+                Directory.CreateDirectory(this.outputPath);
+            }
+            if (!Directory.Exists(this.tempPath))
+            {
+                Directory.CreateDirectory(this.tempPath);
+            }
             Debug.WriteLine(this.ffmpegPath);
             var cl = new Coub();
             var data = cl.getCoubById(CoubId).Result;
@@ -52,24 +60,25 @@ namespace CoubDownload_Bridge.Commands
             var videoInput = Path.Combine(tempPath, $"video_{data.Id}.temp");
             var audioInput = Path.Combine(tempPath, $"audio_{data.Id}.temp");
             var resultOutput = Path.Combine(outputPath, $"{CoubId}.mp4");
-            var dlVideo = wc.DownloadData(video);
-            if (dlVideo.Length > 1)
+            var resultOutputAudio = Path.Combine(outputPath, $"{CoubId}.mp3");
+            if (args.audio != true)
             {
-                dlVideo[0] = dlVideo[1] = 0;
+                var dlVideo = wc.DownloadData(video);
+                if (dlVideo.Length > 1)
+                {
+                    dlVideo[0] = dlVideo[1] = 0;
+                }
+                File.WriteAllBytes(videoInput, dlVideo);
             }
-            File.WriteAllBytes(videoInput, dlVideo);
             //wc.DownloadFile(video, Path.Combine(tempPath, videoInput));
             wc.DownloadFile(audio, Path.Combine(tempPath, audioInput));
             var ffmpeg = new Engine(this.ffmpegPath);
-            if (!Directory.Exists(this.outputPath))
+            if (args.audio == true)
             {
-                Directory.CreateDirectory(this.outputPath);
+                File.Move(audioInput, resultOutputAudio);
+                return resultOutputAudio;
             }
-            if (!Directory.Exists(this.tempPath))
-            {
-                Directory.CreateDirectory(this.tempPath);
-            }
-            if (App.Config.spanVideoToAudio || args.full)
+            if (App.Config.spanVideoToAudio || args.full == true)
             {
                 var vid = new MediaFile(videoInput);
                 var aud = new MediaFile(audioInput);
@@ -84,6 +93,11 @@ namespace CoubDownload_Bridge.Commands
             {
                 ffmpeg.ExecuteAsync($"-i \"{videoInput}\" -i {audioInput} -codec copy -shortest \"{resultOutput}\"").Wait();
             }
+            try
+            {
+                File.Delete(videoInput);
+                File.Delete(audioInput);
+            } catch { }
             return resultOutput;
             return new HelpCommand().Execute(new HelpArgs { Help = true });
         }
