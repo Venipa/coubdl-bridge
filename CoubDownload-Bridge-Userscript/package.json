@@ -1,0 +1,8 @@
+{
+  "name": "coubdownload-bridge-sserscript",
+  "version": "1.0.0",
+  "main": "coub-bridge.user.js",
+  "repository": "https://github.com/Venipa/coubdl-bridge",
+  "author": "Venipa",
+  "license": "MIT"
+}

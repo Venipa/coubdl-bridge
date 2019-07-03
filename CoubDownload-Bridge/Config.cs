@@ -38,7 +38,7 @@ namespace CoubDownload_Bridge
         }
         public void Save()
         {
-            File.WriteAllText(this.configPath, JsonConvert.SerializeObject(this));
+            File.WriteAllText(this.configPath, JsonConvert.SerializeObject(this, Formatting.Indented));
         }
     }
 }
