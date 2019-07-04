@@ -14,6 +14,8 @@ namespace CoubDownload_Bridge
         public Config() { }
         // Config Section
 
+        [JsonProperty("silentProcessOnUrlScheme")]
+        public bool silentWebProcessing { get; private set; } = false;
         [JsonProperty("copyFileToClipboard")]
         public bool copyFileToClipboard { get; private set; } = false;
         [JsonProperty("spanVideoToAudio")]

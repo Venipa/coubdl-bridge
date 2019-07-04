@@ -8,8 +8,10 @@
 
 ## Releases
 
-- [Latest Release](./releases/latest)
-- [Latest Tags](./tags/latest)
+[![Build Status](https://dev.azure.com/sugoisoup/coubdl-bridge/_apis/build/status/Venipa.coubdl-bridge?branchName=master)](https://dev.azure.com/sugoisoup/coubdl-bridge/_build/latest?definitionId=1&branchName=master)
+
+- [Latest Release](/Venipa/coubdl-bridge/releases/latest)
+- [Latest Tags](/Venipa/coubdl-bridge/tags/latest)
 
 ## Install / Register
 

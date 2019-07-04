@@ -24,6 +24,13 @@ namespace CoubDownload_Bridge.Commands
         private string ffmpegPath { get => Path.Combine(this.currentPath, "FFMPEG", "ffmpeg.exe"); }
         public string Execute(DownloadArgs args)
         {
+            if (App.Config.silentWebProcessing)
+            {
+                Task.Run((async () => {
+                    return new DownloadCommand().Execute(args);
+                }));
+                return "async processing...";
+            }
             if (args.download.Length == 0)
             {
                 return "Invalid ID";
@@ -83,6 +90,7 @@ namespace CoubDownload_Bridge.Commands
             }
             //wc.DownloadFile(video, Path.Combine(tempPath, videoInput));
             wc.DownloadFile(audio, Path.Combine(tempPath, audioInput));
+            wc.Dispose();
             var ffmpeg = new Engine(this.ffmpegPath);
             if (args.audio == true)
             {

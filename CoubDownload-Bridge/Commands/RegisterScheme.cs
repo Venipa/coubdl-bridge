@@ -77,6 +77,7 @@ namespace CoubDownload_Bridge.Commands
                         Console.WriteLine(e.Data);
                     };
                     prc.WaitForExit();
+                    prc.Dispose();
                     return "Registering URL Scheme...\n" +
                         "Creating Shortcut Scheme...\n" +
                         "Use coub-bridge -download <id>, once path has been registered...\n" +
@@ -118,6 +119,7 @@ namespace CoubDownload_Bridge.Commands
                         Console.WriteLine(e.Data);
                     };
                     prc.WaitForExit();
+                    prc.Dispose();
                     return "Removing Shortcut Register...\n" +
                         "Removing Path Register...\n" +
                         "Removing URL Scheme Register...";
