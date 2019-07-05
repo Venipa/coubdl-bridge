@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Coub-Bridge
 // @namespace    https://venipa.net
-// @version      0.1.4
+// @version      0.1.5
 // @description  try to take over the world!
 // @author       Venipa
 // @match        https://*.coub.com/*
@@ -24,6 +24,36 @@
     btn.style.marginRight = '8px';
     return btn;
   };
+  const groupButtons = function(...innerButtons) {
+    const seperator = document.createElement('div');
+    seperator.style.width = '2px';
+    seperator.style.backgroundColor = 'rgba(255,255,255,.25)';
+    seperator.style.borderRadius = '18px';
+    seperator.style.height = '18px';
+    const btnGroup = document.createElement('div');
+    btnGroup.style.color = '#fff';
+    btnGroup.style.background = '#000';
+    btnGroup.style.lineHeight = 1;
+    btnGroup.style.fontSize = '0.875rem';
+    btnGroup.style.alignSelf = 'center';
+    btnGroup.style.borderRadius = '4px';
+    btnGroup.style.flexDirection = 'row';
+    btnGroup.style.overflow = 'hidden';
+    if (innerButtons.length > 0) {
+      innerButtons.map(function(x) {
+        x.style.borderRadius = '0';
+        x.style.margin = '0';
+        x.style.flexDirection = 'row';
+        return x;
+      }).forEach(function(x, i) {
+        if ((i + 1) % 2 === 0) {
+          btnGroup.appendChild(seperator);
+        }
+        btnGroup.appendChild(x);
+      });
+    }
+    return btnGroup;
+  };
   var log = {
     debug: function(msg, ...params) {
       console.log('[coub-bridge|debug] ', msg, params);
@@ -34,6 +64,7 @@
   };
   log.debug('boot');
   const buttonId = 'coubdl-download';
+  const buttonLoopedId = 'coubdl-download-looped';
   const buttonAudioId = 'coubdl-audio-download';
   const buttonGifId = 'coubdl-gif-download';
   var checkCoubs = function() {
@@ -54,16 +85,20 @@
           if (controls.querySelectorAll('#' + buttonId).length === 0) {
             let coubId = x.getAttribute('data-permalink');
             let downloadBtn = downloadButton();
-            downloadBtn.id = buttonId;
             downloadBtn.href = 'coubdl-bridge://' + coubId;
-            downloadBtn.innerText = "Download";
-            controls.prepend(downloadBtn);
+            downloadBtn.innerText = 'Download';
+            let downloadBtnFull = downloadButton();
+            downloadBtnFull.href = 'coubdl-bridge://' + coubId + '/full';
+            downloadBtnFull.innerText = 'Looped';
+            let grp = groupButtons(downloadBtn, downloadBtnFull);
+            grp.id = buttonId;
+            controls.prepend(grp);
           }
           if (controls.querySelectorAll('#' + buttonAudioId).length === 0) {
             let coubId = x.getAttribute('data-permalink');
             let downloadBtn = downloadButton();
             downloadBtn.id = buttonAudioId;
-            downloadBtn.innerText = "Audio";
+            downloadBtn.innerText = 'Audio';
             downloadBtn.href = 'coubdl-bridge://' + coubId + '/audio';
             controls.prepend(downloadBtn);
           }
@@ -71,7 +106,7 @@
             let coubId = x.getAttribute('data-permalink');
             let downloadBtn = downloadButton();
             downloadBtn.id = buttonGifId;
-            downloadBtn.innerText = "GIF";
+            downloadBtn.innerText = 'GIF';
             downloadBtn.href = 'coubdl-bridge://' + coubId + '/gif';
             controls.prepend(downloadBtn);
           }

@@ -42,20 +42,26 @@ namespace CoubDownload_Bridge.Commands
                 return "Invalid ID";
             }
             string CoubId = args.download;
+            bool startedFromBrowser = false;
             if (CoubId.ToLower().StartsWith("coubdl-bridge"))
             {
+                startedFromBrowser = true;
                 CoubId = CoubId.Substring("coubdl-bridge://".Length);
                 var csId = CoubId.Split('/');
                 if (csId.Length > 1)
                 {
                     CoubId = csId.FirstOrDefault();
-                    if (csId.LastOrDefault() == "audio")
+                    if (csId.Contains("audio"))
                     {
                         args.audio = true;
                     }
-                    if (csId.LastOrDefault() == "gif")
+                    if (csId.Contains("gif"))
                     {
                         args.gif = true;
+                    }
+                    if (csId.Contains("full"))
+                    {
+                        args.full = true;
                     }
                 }
             }
@@ -172,7 +178,7 @@ namespace CoubDownload_Bridge.Commands
                 }
                 return resultGif;
             }
-            if (App.Config.spanVideoToAudio || args.full == true)
+            if (args.full == true || App.Config.spanVideoToAudio == true && !startedFromBrowser)
             {
                 var vid = new MediaFile(videoInput);
                 var aud = new MediaFile(audioInput);
