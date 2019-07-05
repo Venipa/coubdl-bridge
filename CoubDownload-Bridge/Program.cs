@@ -41,7 +41,7 @@ namespace CoubDownload_Bridge
 
             Console.Title = Assembly.GetExecutingAssembly().GetName().Name;
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            Console.CursorVisible = false;
+            Console.CursorVisible = true;
             var config = new Config();
             if (!config.Exists())
             {
