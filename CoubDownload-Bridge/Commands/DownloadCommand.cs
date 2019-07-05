@@ -162,6 +162,7 @@ namespace CoubDownload_Bridge.Commands
                 {
                     File.Delete(videoInput);
                     File.Delete(audioInput);
+                    System.Windows.Forms.Clipboard.SetText(resultGif);
                 }
                 catch { }
                 overallProgress.Next("Overall Progress");
