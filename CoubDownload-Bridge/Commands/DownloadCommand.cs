@@ -30,6 +30,8 @@ namespace CoubDownload_Bridge.Commands
                 }));
                 return "async processing...";
             }
+            var overallProgress = new ProgressBar(PbStyle.SingleLine, args.audio != true ? 3 : 2, 20, '█');
+            overallProgress.Refresh(0, "Overall Progress");
             if (args.download.Length == 0)
             {
                 return "Invalid ID";
@@ -79,9 +81,7 @@ namespace CoubDownload_Bridge.Commands
             var resultOutput = Path.Combine(outputPath, $"{CoubId}.mp4");
             var resultOutputAudio = Path.Combine(outputPath, $"{CoubId}.mp3");
 
-            Console.WriteLine();
-
-            var withPercentage = new ProgressBar(PbStyle.SingleLine, 100, 16, '█');
+            var withPercentage = new ProgressBar(PbStyle.SingleLine, 100, 20, '█');
             var currentType = CoubDownloadType.Video;
             wc.DownloadProgressChanged += (s, e) =>
             {
@@ -104,11 +104,15 @@ namespace CoubDownload_Bridge.Commands
                     dlVideo[0] = dlVideo[1] = 0;
                 }
                 File.WriteAllBytes(videoInput, dlVideo);
+
+                overallProgress.Next("Overall Progress");
             }
             //wc.DownloadFile(video, Path.Combine(tempPath, videoInput));
             currentType = CoubDownloadType.Audio;
+            withPercentage = new ProgressBar(PbStyle.SingleLine, 100, 20, '█');
             wc.DownloadFileTaskAsync(audio, Path.Combine(tempPath, audioInput)).Wait();
             wc.Dispose();
+            overallProgress.Next("Overall Progress");
             var ffmpeg = new Engine(this.ffmpegPath);
             if (args.audio == true)
             {
@@ -124,7 +128,7 @@ namespace CoubDownload_Bridge.Commands
                 }
                 return resultOutputAudio;
             }
-            withPercentage = new ProgressBar(PbStyle.SingleLine, 100, 16, '█');
+            withPercentage = new ProgressBar(PbStyle.SingleLine, 100, 20, '█');
             withPercentage.Refresh(0, "Converting");
             ffmpeg.Progress += (s, e) =>
             {
@@ -156,9 +160,14 @@ namespace CoubDownload_Bridge.Commands
                 File.Delete(videoInput);
                 File.Delete(audioInput);
             } catch { }
-            if(App.Config.copyFileToClipboard)
+            overallProgress.Next("Overall Progress");
+            if (App.Config.copyFileToClipboard)
             {
                 System.Windows.Forms.Clipboard.SetText(resultOutput);
+            }
+            if (!App.Config.silentWebProcessing)
+            {
+                Task.Delay(1500).Wait();
             }
             return resultOutput;
         }
