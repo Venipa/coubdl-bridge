@@ -38,7 +38,10 @@ namespace CoubDownload_Bridge
         [STAThread]
         static void Main(string[] args)
         {
-
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+            {
+                Console.Out.WriteLineAsync((e.ExceptionObject as Exception)?.Message);
+            };
             Console.Title = Assembly.GetExecutingAssembly().GetName().Name;
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             Console.CursorVisible = true;

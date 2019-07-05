@@ -20,6 +20,10 @@ namespace CoubDownload_Bridge
         public bool copyFileToClipboard { get; private set; } = false;
         [JsonProperty("spanVideoToAudio")]
         public bool spanVideoToAudio { get; private set; } = false;
+        [JsonProperty("useSinglePalletePerFrame")]
+        public bool useSinglePalletePerFrame { get; private set; } = false;
+        [JsonProperty("gifWidth")]
+        public int gifWidth { get; set; } = 320;
 
         [JsonProperty("outputPath")]
         public string outputPath { get; private set; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "output");
@@ -27,7 +31,7 @@ namespace CoubDownload_Bridge
         // Config Section End
         [JsonIgnore]
         private string configPath { get => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json"); }
-        public void Load()
+        public Config Load()
         {
             var config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(this.configPath));
             var _self = this.GetType();
@@ -36,6 +40,7 @@ namespace CoubDownload_Bridge
                 _self.GetProperty(x.Name).SetValue(this, x.GetValue(config));
             });
             this.Save();
+            return this;
         }
         public bool Exists()
         {

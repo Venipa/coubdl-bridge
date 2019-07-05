@@ -5,5 +5,6 @@
         public string download { get; set; }
         public bool full { get; set; }
         public bool audio { get; set; }
+        public bool gif { get; set; }
     }
 }

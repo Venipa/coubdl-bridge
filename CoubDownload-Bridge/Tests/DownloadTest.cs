@@ -16,7 +16,13 @@ namespace CoubDownload_Bridge.Tests
         [Test]
         public void ExecuteDownloadTest()
         {
-            var result = new DownloadCommand().Execute(new Args.DownloadArgs() { download = "coubdl-bridge://1p3kmd" });
+            var result = new DownloadCommand().Execute(new Args.DownloadArgs() { download = "1wjjeh" });
+            Assert.AreEqual(true, File.Exists(result));
+        }
+        [Test]
+        public void GifTest()
+        {
+            var result = new DownloadCommand().Execute(new Args.DownloadArgs() { download = "1wjjeh", gif = true });
             Assert.AreEqual(true, File.Exists(result));
         }
     }
