@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Coub-Bridge
 // @namespace    https://venipa.net
-// @version      0.1.3
+// @version      0.1.4
 // @description  try to take over the world!
 // @author       Venipa
 // @match        https://*.coub.com/*
@@ -35,6 +35,7 @@
   log.debug('boot');
   const buttonId = 'coubdl-download';
   const buttonAudioId = 'coubdl-audio-download';
+  const buttonGifId = 'coubdl-gif-download';
   var checkCoubs = function() {
     var coubs = document.querySelectorAll(
       '#coubchat .coub[coub-block]:not(.timeline-banner), .coubs-list .coub[coub-block]:not(.timeline-banner), .coub-page > .coub-block-col .coub[coub-block]'
@@ -55,7 +56,7 @@
             let downloadBtn = downloadButton();
             downloadBtn.id = buttonId;
             downloadBtn.href = 'coubdl-bridge://' + coubId;
-            downloadBtn.innerText = "Video";
+            downloadBtn.innerText = "Download";
             controls.prepend(downloadBtn);
           }
           if (controls.querySelectorAll('#' + buttonAudioId).length === 0) {
@@ -64,6 +65,14 @@
             downloadBtn.id = buttonAudioId;
             downloadBtn.innerText = "Audio";
             downloadBtn.href = 'coubdl-bridge://' + coubId + '/audio';
+            controls.prepend(downloadBtn);
+          }
+          if (controls.querySelectorAll('#' + buttonGifId).length === 0) {
+            let coubId = x.getAttribute('data-permalink');
+            let downloadBtn = downloadButton();
+            downloadBtn.id = buttonGifId;
+            downloadBtn.innerText = "GIF";
+            downloadBtn.href = 'coubdl-bridge://' + coubId + '/gif';
             controls.prepend(downloadBtn);
           }
         }
