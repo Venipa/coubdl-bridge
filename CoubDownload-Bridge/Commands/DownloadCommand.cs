@@ -2,16 +2,15 @@
 using CoubDownload_Bridge.API;
 using CoubDownload_Bridge.Args;
 using FFmpeg.NET;
-using MyDownloader.Core;
-using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using Konsole;
 
 namespace CoubDownload_Bridge.Commands
 {
@@ -79,9 +78,27 @@ namespace CoubDownload_Bridge.Commands
             var audioInput = Path.Combine(tempPath, $"audio_{data.Id}-({Guid.NewGuid().ToString()}).temp");
             var resultOutput = Path.Combine(outputPath, $"{CoubId}.mp4");
             var resultOutputAudio = Path.Combine(outputPath, $"{CoubId}.mp3");
+
+            Console.WriteLine();
+
+            var withPercentage = new ProgressBar(PbStyle.SingleLine, 16);
+            var currentType = CoubDownloadType.Video;
+            wc.DownloadProgressChanged += (s, e) =>
+            {
+                withPercentage.Refresh(e.ProgressPercentage, $"Downloading {currentType.ToString()}");
+            };
+            wc.DownloadDataCompleted += async (s, e) =>
+            {
+                withPercentage.Refresh(e.Cancelled ? 0 : withPercentage.Max, $"Downloading {currentType.ToString()}");
+            };
+            wc.DownloadFileCompleted += async (s, e) =>
+            {
+                withPercentage.Refresh(e.Cancelled ? 0 : withPercentage.Max, $"Downloading {currentType.ToString()}");
+            };
             if (args.audio != true)
             {
-                var dlVideo = wc.DownloadData(video);
+                withPercentage.Refresh(0, $"Downloading {currentType.ToString()}");
+                var dlVideo = wc.DownloadDataTaskAsync(video).Result;
                 if (dlVideo.Length > 1)
                 {
                     dlVideo[0] = dlVideo[1] = 0;
@@ -89,7 +106,8 @@ namespace CoubDownload_Bridge.Commands
                 File.WriteAllBytes(videoInput, dlVideo);
             }
             //wc.DownloadFile(video, Path.Combine(tempPath, videoInput));
-            wc.DownloadFile(audio, Path.Combine(tempPath, audioInput));
+            currentType = CoubDownloadType.Audio;
+            wc.DownloadFileTaskAsync(audio, Path.Combine(tempPath, audioInput)).Wait();
             wc.Dispose();
             var ffmpeg = new Engine(this.ffmpegPath);
             if (args.audio == true)
@@ -102,10 +120,21 @@ namespace CoubDownload_Bridge.Commands
 
                 if (App.Config.copyFileToClipboard)
                 {
-                    Clipboard.SetText(resultOutputAudio);
+                    System.Windows.Forms.Clipboard.SetText(resultOutputAudio);
                 }
                 return resultOutputAudio;
             }
+            withPercentage = new ProgressBar(PbStyle.SingleLine, 16);
+            withPercentage.Refresh(0, "Converting");
+            ffmpeg.Progress += (s, e) =>
+            {
+                var perc = Math.Round((e.TotalDuration.TotalMilliseconds / e.ProcessedDuration.TotalMilliseconds) * 100, 0);
+                withPercentage.Refresh((int)perc, "Converting");
+            };
+            ffmpeg.Complete += (s, e) =>
+            {
+                withPercentage.Refresh(withPercentage.Max, "Converting");
+            };
             if (App.Config.spanVideoToAudio || args.full == true)
             {
                 var vid = new MediaFile(videoInput);
@@ -121,6 +150,7 @@ namespace CoubDownload_Bridge.Commands
             {
                 ffmpeg.ExecuteAsync($"-i \"{videoInput}\" -i {audioInput} -codec copy -shortest \"{resultOutput}\"").Wait();
             }
+            Console.SetCursorPosition(0, Console.CursorTop + 1);
             try
             {
                 File.Delete(videoInput);
@@ -128,9 +158,14 @@ namespace CoubDownload_Bridge.Commands
             } catch { }
             if(App.Config.copyFileToClipboard)
             {
-                Clipboard.SetText(resultOutput);
+                System.Windows.Forms.Clipboard.SetText(resultOutput);
             }
             return resultOutput;
         }
+    }
+    enum CoubDownloadType
+    {
+        Audio,
+        Video
     }
 }

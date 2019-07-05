@@ -40,6 +40,8 @@ namespace CoubDownload_Bridge
         {
 
             Console.Title = Assembly.GetExecutingAssembly().GetName().Name;
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Console.CursorVisible = false;
             var config = new Config();
             if (!config.Exists())
             {
@@ -50,10 +52,6 @@ namespace CoubDownload_Bridge
             }
             if (config.silentWebProcessing)
             {
-                Console.WindowTop = 0;
-                Console.WindowLeft = 0;
-                Console.WindowHeight = 26;
-                Console.WindowWidth = 40;
                 MinimizeConsoleWindow();
             }
             App.Config = config;
