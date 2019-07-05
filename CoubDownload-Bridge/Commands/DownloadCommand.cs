@@ -81,7 +81,7 @@ namespace CoubDownload_Bridge.Commands
 
             Console.WriteLine();
 
-            var withPercentage = new ProgressBar(PbStyle.SingleLine, 16);
+            var withPercentage = new ProgressBar(PbStyle.SingleLine, 100, 16, '█');
             var currentType = CoubDownloadType.Video;
             wc.DownloadProgressChanged += (s, e) =>
             {
@@ -124,7 +124,7 @@ namespace CoubDownload_Bridge.Commands
                 }
                 return resultOutputAudio;
             }
-            withPercentage = new ProgressBar(PbStyle.SingleLine, 16);
+            withPercentage = new ProgressBar(PbStyle.SingleLine, 100, 16, '█');
             withPercentage.Refresh(0, "Converting");
             ffmpeg.Progress += (s, e) =>
             {
