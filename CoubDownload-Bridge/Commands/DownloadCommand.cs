@@ -93,7 +93,7 @@ namespace CoubDownload_Bridge.Commands
             var wc = new WebClient();
             var videoInput = Path.Combine(tempPath, $"video_{data.Id}-({Guid.NewGuid().ToString()}).temp");
             var audioInput = Path.Combine(tempPath, $"audio_{data.Id}-({Guid.NewGuid().ToString()}).temp");
-            var resultOutput = Path.Combine(outputPath, $"{CoubId}.mp4");
+            var resultOutput = Path.Combine(outputPath, $"{CoubId}{(args.full ? "-full" : "")}.mp4");
             var resultOutputAudio = Path.Combine(outputPath, $"{CoubId}.mp3");
             var resultGif = Path.Combine(outputPath, $"{CoubId}.gif");
 
