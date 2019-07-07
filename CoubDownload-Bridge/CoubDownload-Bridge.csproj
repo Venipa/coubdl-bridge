@@ -112,7 +112,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
-    <None Include="Views\Default.template" />
+    <EmbeddedResource Include="Views\Default.template" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="FFMPEG\ffmpeg.exe">

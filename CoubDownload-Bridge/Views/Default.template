@@ -1,10 +1,30 @@
 
 NAME
-	CoubDownload-Bridge Version: 0.1.0
+	{{executable}} Version: {{version}}
 
 SYNTAX
-	CoubDownload-Bridge [args] [options]
+	{{executable}} [args] [options]
 
 DESCRIPTION
 	Download Coubs via Custom URL Protocol or via argument
+	Also includes converting to GIF or Audio
 
+COMMANDS
+	{{executable}} -download <id|url> [-gif|-audio|-full]
+	{{executable}} -help
+
+EXAMPLES
+	> Download Coub with Video and Sound
+	 {{executable}} -download 1xbleb
+
+	> Download Coub but only Audio
+	 {{executable}} -download 1xbleb -audio
+
+	> Download Coub with Video and Sound, Video is looped until Audio ends
+	 {{executable}} -download 1xbleb -full
+
+	> Download Coub and convert it to GIF, size can be adjusted in config.json
+	 {{executable}} -download 1xbleb -gif
+
+	> Download Coub by Link
+	 {{executable}} -download https://coub.com/view/1xbleb

@@ -22,6 +22,10 @@ namespace CoubDownload_Bridge
         public bool spanVideoToAudio { get; private set; } = false;
         [JsonProperty("useSinglePalletePerFrame")]
         public bool useSinglePalletePerFrame { get; private set; } = false;
+        [JsonProperty("addCategoryPrefix")]
+        public bool addCategoryPrefix { get; private set; } = true;
+        [JsonProperty("addCommunityPrefix")]
+        public bool addCommunityPrefix { get; private set; } = false;
         [JsonProperty("gifWidth")]
         public int gifWidth { get; set; } = 320;
 
