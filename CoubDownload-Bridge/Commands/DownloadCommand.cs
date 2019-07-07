@@ -11,6 +11,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Konsole;
+using System.Text;
 
 namespace CoubDownload_Bridge.Commands
 {
@@ -97,10 +98,19 @@ namespace CoubDownload_Bridge.Commands
             var dataCommunity = $"[{(App.Config.addCommunityPrefix ? $"{data.Communities?.Where(x => x.Visible != false)?.FirstOrDefault()?.Title ?? ""}" : "")}]";
             var dataCategory = $"[{(App.Config.addCategoryPrefix ? $"{data.Categories?.Where(x => x.Visible != false)?.FirstOrDefault()?.Title ?? "General"}" : "")}]";
             dataCommunity = dataCommunity.EndsWith("[]") ? "" : dataCommunity;
-            dataCategory = dataCategory.EndsWith("[]") || dataCommunity == dataCategory ? "" : dataCategory;
-            var resultOutput = Path.Combine(outputPath, $"{dataCommunity}{dataCategory}{CoubId}{(args.full ? "-full" : "")}.mp4");
-            var resultOutputAudio = Path.Combine(outputPath, $"{dataCommunity}{dataCategory}{CoubId}.mp3");
-            var resultGif = Path.Combine(outputPath, $"{dataCommunity}{dataCategory}{CoubId}.gif");
+            dataCategory = dataCategory.EndsWith("[]") ? "" : dataCategory;
+            var resultOutputPrefix = new StringBuilder();
+            if (App.Config.addCommunityPrefix)
+            {
+                resultOutputPrefix.Append(dataCommunity);
+            }
+            if (App.Config.addCategoryPrefix && resultOutputPrefix.ToString() != dataCommunity)
+            {
+                resultOutputPrefix.Append(dataCategory);
+            }
+            var resultOutput = Path.Combine(outputPath, $"{resultOutputPrefix}{CoubId}{(args.full ? "-full" : "")}.mp4");
+            var resultOutputAudio = Path.Combine(outputPath, $"{resultOutputPrefix}{CoubId}.mp3");
+            var resultGif = Path.Combine(outputPath, $"{resultOutputPrefix}{CoubId}.gif");
 
             var withPercentage = new ProgressBar(PbStyle.SingleLine, 100, 20, '█');
             var currentType = CoubDownloadType.Video;
