@@ -96,7 +96,7 @@ namespace CoubDownload_Bridge.Commands
             var audioInput = Path.Combine(tempPath, $"audio_{data.Id}-({Guid.NewGuid().ToString()}).temp");
 
             var dataCommunity = $"[{(App.Config.addCommunityPrefix ? $"{data.Communities?.Where(x => x.Visible != false)?.FirstOrDefault()?.Title ?? ""}" : "")}]";
-            var dataCategory = $"[{(App.Config.addCategoryPrefix ? $"{data.Categories?.Where(x => x.Visible != false)?.FirstOrDefault()?.Title ?? "General"}" : "")}]";
+            var dataCategory = $"[{(App.Config.addCategoryPrefix ? $"{data.Categories?.Where(x => x.Visible != false && (App.Config.addCommunityPrefix ? (x.Title != dataCommunity) : true))?.FirstOrDefault()?.Title ?? "General"}" : "")}]";
             dataCommunity = dataCommunity.EndsWith("[]") ? "" : dataCommunity;
             dataCategory = dataCategory.EndsWith("[]") ? "" : dataCategory;
             var resultOutputPrefix = new StringBuilder();
