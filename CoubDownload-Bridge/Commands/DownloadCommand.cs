@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Konsole;
 using System.Text;
+using System.Collections.Generic;
 
 namespace CoubDownload_Bridge.Commands
 {
@@ -160,6 +161,10 @@ namespace CoubDownload_Bridge.Commands
                 {
                     System.Windows.Forms.Clipboard.SetText(resultOutputAudio);
                 }
+                if (args.sharex || App.Config.Sharex.Enabled && File.Exists(App.Config.Sharex.Path))
+                {
+                    this.RunSharex(resultOutputAudio, args);
+                }
                 return resultOutputAudio;
             }
             withPercentage = new ProgressBar(PbStyle.SingleLine, 100, 20, '█');
@@ -190,6 +195,10 @@ namespace CoubDownload_Bridge.Commands
                 if (!App.Config.silentWebProcessing)
                 {
                     Task.Delay(1500).Wait();
+                }
+                if (args.sharex || App.Config.Sharex.Enabled && File.Exists(App.Config.Sharex.Path))
+                {
+                    this.RunSharex(resultGif, args);
                 }
                 return resultGif;
             }
@@ -222,11 +231,44 @@ namespace CoubDownload_Bridge.Commands
             {
                 System.Windows.Forms.Clipboard.SetText(resultOutput);
             }
+            if (args.sharex || App.Config.Sharex.Enabled && File.Exists(App.Config.Sharex.Path))
+            {
+                this.RunSharex(resultOutput, args);
+            }
             if (!App.Config.silentWebProcessing)
             {
                 Task.Delay(1500).Wait();
             }
             return resultOutput;
+        }
+        private Task RunSharex(string file, DownloadArgs dArgs)
+        {
+            if (!File.Exists(file))
+            {
+                throw new FileNotFoundException("File does not Exist");
+            }
+            if (!File.Exists(App.Config.Sharex.Path))
+            {
+                throw new FileNotFoundException("Sharex could not be found");
+            }
+            var args = new List<string>() { $"\"{file}\"" };
+            if (dArgs.sharexTask != null || App.Config.Sharex.TaskName != null)
+            {
+                args.Add($"-task \"{ (dArgs.sharexTask != null ? dArgs.sharexTask : App.Config.Sharex.TaskName) }\"");
+            }
+            args.Add("-s");
+            return Task.Run((Action)(() =>
+              {
+                  var p = new Process()
+                  {
+                      StartInfo = new ProcessStartInfo()
+                      {
+                          FileName = App.Config.Sharex.Path,
+                          Arguments = string.Join(" ", args)
+                      }
+                  };
+                  p.Start();
+              }));
         }
     }
     enum CoubDownloadType

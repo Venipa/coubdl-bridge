@@ -9,11 +9,22 @@ using System.Threading.Tasks;
 
 namespace CoubDownload_Bridge
 {
+    public class SharexConfig
+    {
+        [JsonProperty("enabled")]
+        public bool Enabled { get; private set; } = false;
+        [JsonProperty("path")]
+        public string Path { get; private set; } = "";
+        [JsonProperty("task")]
+        public string TaskName { get; private set; } = "";
+    }
     public class Config
     {
         public Config() { }
         // Config Section
 
+        [JsonProperty("sharex")]
+        public SharexConfig Sharex{ get; private set; } = new SharexConfig();
         [JsonProperty("silentProcessOnUrlScheme")]
         public bool silentWebProcessing { get; private set; } = false;
         [JsonProperty("copyFileToClipboard")]
