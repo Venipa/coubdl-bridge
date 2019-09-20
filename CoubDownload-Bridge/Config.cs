@@ -18,6 +18,37 @@ namespace CoubDownload_Bridge
         [JsonProperty("task")]
         public string TaskName { get; private set; } = "";
     }
+    public class GifGenerationConfig {
+        
+        const int MAX_QUALITY = 100;
+        const int MIN_QUALITY = 10;
+        const int MAX_FPS = 60;
+        const int MIN_FPS = 10;
+        private int _Fps;
+        [JsonProperty("fps")]
+        public int Fps
+        {
+            get { return _Fps; }
+            set { _Fps = value < MIN_FPS ? MIN_FPS :
+            value > MAX_FPS ? MAX_FPS : value; }
+        }
+        
+        public int MaxFps { get; set; } = 100;
+        private int _quality;
+        [JsonProperty("quality")]
+        public int Quality
+        {
+            get { return _quality; }
+            set { _quality = value < MIN_QUALITY ? MIN_QUALITY :
+            value > MAX_QUALITY ? MAX_QUALITY : value; }
+        }
+        [JsonProperty("width")]
+        public int Width { get; set; } = 100;
+        [JsonProperty("height")]
+        public int Height { get; set; } = 200;
+        [JsonProperty("match_aspect_ratio")]
+        public bool MatchAspectRatio { get; set; } = true;
+    }
     public class Config
     {
         public Config() { }
@@ -27,6 +58,10 @@ namespace CoubDownload_Bridge
         public SharexConfig Sharex{ get; private set; } = new SharexConfig();
         [JsonProperty("silentProcessOnUrlScheme")]
         public bool silentWebProcessing { get; private set; } = false;
+        [JsonProperty("moveNsfwToNewFolder")]
+        public bool nsfwFolderEnabled { get; set; } = true;
+        [JsonProperty("moveMediaToTheirCategoryFolder")]
+        public bool categoryToFolderMatchEnabled { get; set; } = false;
         [JsonProperty("copyFileToClipboard")]
         public bool copyFileToClipboard { get; private set; } = false;
         [JsonProperty("spanVideoToAudio")]
@@ -39,6 +74,8 @@ namespace CoubDownload_Bridge
         public bool addCommunityPrefix { get; private set; } = false;
         [JsonProperty("gifWidth")]
         public int gifWidth { get; set; } = 320;
+        [JsonProperty("additional_gif_conversions")]
+        public List<GifGenerationConfig> AdditionalGIFConversions { get; set; } = new List<GifGenerationConfig>();
 
         [JsonProperty("outputPath")]
         public string outputPath { get; private set; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "output");

@@ -21,7 +21,7 @@ namespace CoubDownload_Bridge.Commands
         public string CoubId { get; private set; }
         private string currentPath { get => AppDomain.CurrentDomain.BaseDirectory; }
         private string tempPath { get => Path.Combine(this.currentPath, "tmp"); }
-        private string outputPath { get => App.Config.outputPath; }
+        private string _outputPath { get => App.Config.outputPath; }
         private string ffmpegPath { get => Path.Combine(this.currentPath, "FFMPEG", "ffmpeg.exe"); }
         public string Execute(DownloadArgs args)
         {
@@ -37,6 +37,7 @@ namespace CoubDownload_Bridge.Commands
                 }));
                 return "async processing...";
             }
+            var outputPath = _outputPath;
             var overallProgress = new ProgressBar(PbStyle.SingleLine, args.audio != true ? 3 : 2, 20, '█');
             overallProgress.Refresh(0, "Overall Progress");
             if (args.download.Length == 0)
@@ -79,9 +80,9 @@ namespace CoubDownload_Bridge.Commands
                     CoubId = reg.Match(CoubId)?.Groups[3]?.Value ?? CoubId;
                 }
             }
-            if (!Directory.Exists(this.outputPath))
+            if (!Directory.Exists(outputPath))
             {
-                Directory.CreateDirectory(this.outputPath);
+                Directory.CreateDirectory(outputPath);
             }
             if (!Directory.Exists(this.tempPath))
             {
@@ -108,6 +109,24 @@ namespace CoubDownload_Bridge.Commands
             if (App.Config.addCategoryPrefix && resultOutputPrefix.ToString() != dataCommunity)
             {
                 resultOutputPrefix.Append(dataCategory);
+            }
+            if (!App.Config.nsfwFolderEnabled || data.Communities?.Count(x => x.Title?.ToLower().IndexOf("nsfw") != -1) == 0)
+            {
+                if (App.Config.categoryToFolderMatchEnabled && (!string.IsNullOrEmpty(resultOutputPrefix.ToString())))
+                {
+                    outputPath = Path.Combine(outputPath, resultOutputPrefix.ToString());
+                    if (!Directory.Exists(outputPath))
+                    {
+                        Directory.CreateDirectory(outputPath);
+                    }
+                }
+            } else
+            {
+                outputPath = Path.Combine(outputPath, "nsfw");
+                if (!Directory.Exists(outputPath))
+                {
+                    Directory.CreateDirectory(outputPath);
+                }
             }
             var resultOutput = Path.Combine(outputPath, $"{resultOutputPrefix}{CoubId}{(args.full ? "-full" : "")}.mp4");
             var resultOutputAudio = Path.Combine(outputPath, $"{resultOutputPrefix}{CoubId}.mp3");
