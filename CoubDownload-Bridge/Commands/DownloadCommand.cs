@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Konsole;
 using System.Text;
 using System.Collections.Generic;
+using System.Windows.Threading;
 
 namespace CoubDownload_Bridge.Commands
 {
@@ -91,7 +92,7 @@ namespace CoubDownload_Bridge.Commands
             Debug.WriteLine(this.ffmpegPath);
             var cl = new Coub();
             var data = cl.getCoubById(CoubId).Result;
-            var audio = data.FileVersions.Html5.Audio.High?.Url ?? data.FileVersions.Html5.Audio.Med.Url;
+            var audio = data.FileVersions.Html5.Audio?.High?.Url ?? data.FileVersions.Html5.Audio?.Med?.Url;
             var video = data.FileVersions.Html5.Video.High?.Url ?? data.FileVersions.Html5.Video.Med.Url;
             var wc = new WebClient();
             var videoInput = Path.Combine(tempPath, $"video_{data.Id}-({Guid.NewGuid().ToString()}).temp");
@@ -110,7 +111,8 @@ namespace CoubDownload_Bridge.Commands
             {
                 resultOutputPrefix.Append(dataCategory);
             }
-            if (!App.Config.nsfwFolderEnabled || data.Communities?.Count(x => x.Title?.ToLower().IndexOf("nsfw") != -1) == 0)
+            if (!App.Config.nsfwFolderEnabled || data.Communities?.Count(x => x.Title?.ToLower().IndexOf("nsfw") != -1) == 0 ||
+                data.Categories?.Count(x => x.Title?.ToLower().IndexOf("nsfw") != -1) == 0)
             {
                 if (App.Config.categoryToFolderMatchEnabled && (!string.IsNullOrEmpty(resultOutputPrefix.ToString())))
                 {
@@ -159,7 +161,7 @@ namespace CoubDownload_Bridge.Commands
                 overallProgress.Next("Overall Progress");
             }
             //wc.DownloadFile(video, Path.Combine(tempPath, videoInput));
-            if (!args.gif)
+            if (!args.gif && audio != null)
             {
                 currentType = CoubDownloadType.Audio;
                 withPercentage = new ProgressBar(PbStyle.SingleLine, 100, 20, '█');
@@ -170,6 +172,10 @@ namespace CoubDownload_Bridge.Commands
             var ffmpeg = new Engine(this.ffmpegPath);
             if (args.audio == true)
             {
+                if (audio == null)
+                {
+                    return "Audio does not exist or it has been removed from the specified coub";
+                }
                 if (File.Exists(resultOutputAudio))
                 {
                     File.Delete(resultOutputAudio);
@@ -221,7 +227,7 @@ namespace CoubDownload_Bridge.Commands
                 }
                 return resultGif;
             }
-            if (args.full == true || App.Config.spanVideoToAudio == true && !startedFromBrowser)
+            if (audio != null && (args.full == true || App.Config.spanVideoToAudio == true && !startedFromBrowser))
             {
                 var vid = new MediaFile(videoInput);
                 var aud = new MediaFile(audioInput);
@@ -234,21 +240,27 @@ namespace CoubDownload_Bridge.Commands
                     ffmpeg.ExecuteAsync($"-stream_loop -1 -i \"{videoInput}\" -i {audioInput} -c:v copy -shortest -map 0:v:0 -map 1:a:0 -y \"{resultOutput}\"").Wait();
                 }
             }
-            else
+            else if (audio != null)
             {
                 ffmpeg.ExecuteAsync($"-i \"{videoInput}\" -i {audioInput} -codec copy -shortest \"{resultOutput}\"").Wait();
+            } else
+            {
+                ffmpeg.ExecuteAsync($"-i \"{videoInput}\" -codec copy -shortest \"{resultOutput}\"").Wait();
             }
             Console.SetCursorPosition(0, Console.CursorTop + 1);
             try
             {
-                File.Delete(videoInput);
-                File.Delete(audioInput);
+                @File.Delete(videoInput);
+                @File.Delete(audioInput);
             }
             catch { }
             overallProgress.Next("Overall Progress");
             if (App.Config.copyFileToClipboard)
             {
-                System.Windows.Forms.Clipboard.SetText(resultOutput);
+                Dispatcher.CurrentDispatcher.Invoke(() =>
+                {
+                    @System.Windows.Forms.Clipboard.SetText(resultOutput);
+                });
             }
             if (args.sharex || App.Config.Sharex.Enabled && File.Exists(App.Config.Sharex.Path))
             {

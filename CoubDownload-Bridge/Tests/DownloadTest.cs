@@ -16,7 +16,7 @@ namespace CoubDownload_Bridge.Tests
         [Test]
         public void ExecuteDownloadTest()
         {
-            var result = new DownloadCommand().Execute(new Args.DownloadArgs() { download = "1wjjeh" });
+            var result = new DownloadCommand().Execute(new Args.DownloadArgs() { download = "216g4r" });
             Assert.AreEqual(true, File.Exists(result));
         }
         [Test]
