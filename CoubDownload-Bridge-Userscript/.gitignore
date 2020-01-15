@@ -1,4 +1,5 @@
 dist/
+!dist/app.js
 node_modules/
 package-lock.json
 .vscode/
