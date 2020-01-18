@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Coub-Bridge
 // @namespace    https://venipa.net
-// @version      0.1.7
+// @version      0.2.0
 // @description  try to take over the world!
 // @author       Venipa
 // @match        https://*.coub.com/*

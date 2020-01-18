@@ -62,56 +62,104 @@
     '#coubchat .coub[coub-block]:not(.timeline-banner), .coubs-list .coub[coub-block]:not(.timeline-banner), .coub-page > .coub-block-col .coub[coub-block]';
   const coubsRelatedSelector =
     '.suggests-block-col .suggest__list > .suggest__item';
-    /**
-     * 
-     * @param {HTMLElement[]} parentNodes 
-     */
-  var checkCoubs = function(parentNodes) {
+  /**
+   *
+   * @param {HTMLElement[]} parentNodes
+   */
+  const checkCoubs = function(parentNodes) {
     log.debug(parentNodes);
-    parentNodes.filter(x => x.querySelectorAll).forEach(x => {
-      var controls = x.querySelector('.description__controls');
-      if (controls && controls.querySelectorAll) {
-        if (controls.querySelectorAll('#' + buttonId).length === 0) {
-          let coubId = x.getAttribute('data-permalink');
-          let downloadBtn = downloadButton();
+    parentNodes
+      .filter(x => x.querySelectorAll)
+      .forEach(x => {
+        var controls = x.querySelector('.description__controls');
+        if (controls && controls.querySelectorAll) {
+          if (controls.querySelectorAll('#' + buttonId).length === 0) {
+            let coubId = x.getAttribute('data-permalink');
+            let downloadBtn = downloadButton();
+            downloadBtn.href = 'coubdl-bridge://' + coubId;
+            downloadBtn.innerText = 'Download';
+            let downloadBtnFull = downloadButton();
+            downloadBtnFull.href = 'coubdl-bridge://' + coubId + '/full';
+            downloadBtnFull.innerText = 'Looped';
+            let grp = groupButtons(downloadBtn, downloadBtnFull);
+            grp.id = buttonId;
+            controls.prepend(grp);
+          }
+          if (controls.querySelectorAll('#' + buttonAudioId).length === 0) {
+            let coubId = x.getAttribute('data-permalink');
+            let downloadBtn = downloadButton();
+            downloadBtn.id = buttonAudioId;
+            downloadBtn.innerText = 'Audio';
+            downloadBtn.href = 'coubdl-bridge://' + coubId + '/audio';
+            controls.prepend(downloadBtn);
+          }
+          if (controls.querySelectorAll('#' + buttonGifId).length === 0) {
+            let coubId = x.getAttribute('data-permalink');
+            let downloadBtn = downloadButton();
+            downloadBtn.id = buttonGifId;
+            downloadBtn.innerText = 'GIF';
+            downloadBtn.href = 'coubdl-bridge://' + coubId + '/gif';
+            controls.prepend(downloadBtn);
+          }
+        }
+      });
+  };
+  /**
+   *
+   * @param {HTMLElement[]} parentNodes
+   */
+  const checkRelated = function(parentNodes) {
+    parentNodes
+      .filter(x => x.querySelectorAll)
+      .map(x => Array.from(x.querySelectorAll('.suggest__item')))
+      .filter(x => x.length > 0)
+      .reduce((l, r) => [...l, ...r], [])
+      .forEach(function(x) {
+        if (
+          x &&
+          x.querySelectorAll &&
+          x.querySelectorAll('#' + buttonId).length === 0
+        ) {
+          var coubId = x.getAttribute('data-permalink');
+          var downloadBtn = downloadButton();
+          downloadBtn.id = buttonId;
           downloadBtn.href = 'coubdl-bridge://' + coubId;
-          downloadBtn.innerText = 'Download';
-          let downloadBtnFull = downloadButton();
-          downloadBtnFull.href = 'coubdl-bridge://' + coubId + '/full';
-          downloadBtnFull.innerText = 'Looped';
-          let grp = groupButtons(downloadBtn, downloadBtnFull);
-          grp.id = buttonId;
-          controls.prepend(grp);
+          downloadBtn.style.padding = '4px 6px';
+          downloadBtn.style.position = 'absolute';
+          downloadBtn.style.top = 0;
+          downloadBtn.style.right = 0;
+          downloadBtn.style.marginTop = '8px';
+          downloadBtn.style.marginRight = '8px';
+          downloadBtn.style.zIndex = 9999;
+          x.prepend(downloadBtn);
         }
-        if (controls.querySelectorAll('#' + buttonAudioId).length === 0) {
-          let coubId = x.getAttribute('data-permalink');
-          let downloadBtn = downloadButton();
-          downloadBtn.id = buttonAudioId;
-          downloadBtn.innerText = 'Audio';
-          downloadBtn.href = 'coubdl-bridge://' + coubId + '/audio';
-          controls.prepend(downloadBtn);
-        }
-        if (controls.querySelectorAll('#' + buttonGifId).length === 0) {
-          let coubId = x.getAttribute('data-permalink');
-          let downloadBtn = downloadButton();
-          downloadBtn.id = buttonGifId;
-          downloadBtn.innerText = 'GIF';
-          downloadBtn.href = 'coubdl-bridge://' + coubId + '/gif';
-          controls.prepend(downloadBtn);
-        }
-      }
-    });
+      });
   };
   const mut = new MutationObserver(mutations => {
     /**
      * @type {HTMLElement[]}
      */
     let addednodes;
-    if ((addednodes = mutations.filter(x => x.addedNodes && x.addedNodes.length > 0).map(x => x.addedNodes).reduce((l,r) => ([...l, ...r]), [])).length > 0 && addednodes) {
+    if (
+      (addednodes = mutations
+        .filter(x => x.addedNodes && x.addedNodes.length > 0)
+        .map(x => x.addedNodes)
+        .reduce((l, r) => [...l, ...r], [])).length > 0 &&
+      addednodes
+    ) {
       console.log(addednodes);
-      const validNodes = addednodes.filter(x => ['coub', 'coub-page', 'viewer__video', 'page', 'coub--normal-card'].filter(y => x.classList?.contains(y)));
+      const validNodes = addednodes.filter(x =>
+        [
+          'coub',
+          'coub-page',
+          'viewer__video',
+          'page',
+          'coub--normal-card'
+        ].filter(y => x.classList?.contains(y))
+      );
       if (validNodes.length > 0) {
         checkCoubs(validNodes);
+        checkRelated(coubBox);
       }
     }
   });
@@ -119,23 +167,39 @@
   //   .querySelectorAll('#coubchat, .coubs-list, .coub-page .coub-block-col')
   //   .forEach(x => {
   //   });
-    
-    const bodyObserver = new MutationObserver((m) => {
-      mut.disconnect();
-      let coubBox = Array.from(document.querySelectorAll('.coub.coub--page-card,.coub.coub--timeline,.coubs-list__inner .page'));
-      log.debug(['start el', coubBox]);
-      checkCoubs(coubBox);
-      m.filter(x => x.addedNodes?.length).map(x => x.addedNodes).reduce((l,r) => [...l, r]).forEach(el => {
-        mut.observe(el);
-      });
-    });
-    bodyObserver.observe(document.documentElement, {
-      attributes: true,
-      characterData: true,
-      childList: true,
-      subtree: true
-    });
-    let coubBox = Array.from(document.querySelectorAll('.coub.coub--page-card,.coub.coub--timeline,.coubs-list__inner .page'));
-    log.debug(['start el', coubBox]);
+
+  const bodyObserver = new MutationObserver(m => {
+    mut.disconnect();
+    let coubBox = Array.from(
+      document.querySelectorAll(
+        '.coub.coub--page-card,.coub.coub--timeline,.coubs-list__inner .page, .cobb-page .suggests--page'
+      )
+    );
     checkCoubs(coubBox);
+    checkRelated(coubBox);
+    m.filter(x => x.addedNodes?.length)
+      .map(x => Array.from(x.addedNodes))
+      .reduce((l, r) => [...l, ...r], [])
+      .forEach(el => {
+        mut.observe(el, {
+          attributes: true,
+          characterData: true,
+          childList: true,
+          subtree: true
+        });
+      });
+  });
+  bodyObserver.observe(document.documentElement, {
+    attributes: true,
+    characterData: true,
+    childList: true,
+    subtree: true
+  });
+  let coubBox = Array.from(
+    document.querySelectorAll(
+      '.coub.coub--page-card,.coub.coub--timeline,.coubs-list__inner .page'
+    )
+  );
+  checkCoubs(coubBox);
+  checkRelated(coubBox);
 })();
