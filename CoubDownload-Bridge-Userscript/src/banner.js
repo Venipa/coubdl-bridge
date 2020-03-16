@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Coub-Bridge
 // @namespace    https://venipa.net
-// @version      0.2.0
-// @description  try to take over the world!
+// @version      0.2.1
+// @description  Bridge between the desktop and webbrowser to download and merge video & audio from coub
 // @author       Venipa
 // @match        https://*.coub.com/*
 // @match        https://coub.com/*

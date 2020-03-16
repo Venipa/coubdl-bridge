@@ -47,6 +47,9 @@
   };
   var log = {
     debug: function(msg, ...params) {
+      if (!dev) {
+        return;
+      }
       console.log('[coub-bridge|debug] ', msg, params);
     },
     tag: function(tag, msg, ...params) {
@@ -72,9 +75,9 @@
       .filter(x => x.querySelectorAll)
       .forEach(x => {
         var controls = x.querySelector('.description__controls');
-        if (controls && controls.querySelectorAll) {
+        var coubId;
+        if (controls && controls.querySelectorAll && x && (coubId = x.getAttribute('data-permalink'))) {
           if (controls.querySelectorAll('#' + buttonId).length === 0) {
-            let coubId = x.getAttribute('data-permalink');
             let downloadBtn = downloadButton();
             downloadBtn.href = 'coubdl-bridge://' + coubId;
             downloadBtn.innerText = 'Download';
@@ -86,7 +89,6 @@
             controls.prepend(grp);
           }
           if (controls.querySelectorAll('#' + buttonAudioId).length === 0) {
-            let coubId = x.getAttribute('data-permalink');
             let downloadBtn = downloadButton();
             downloadBtn.id = buttonAudioId;
             downloadBtn.innerText = 'Audio';

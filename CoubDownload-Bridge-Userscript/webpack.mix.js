@@ -1,6 +1,6 @@
-let mix = require('laravel-mix');
-const { BannerPlugin } = require('webpack');
-const { readFileSync } = require('fs');
+let mix = require("laravel-mix");
+const { BannerPlugin } = require("webpack");
+const { readFileSync } = require("fs");
 /*
  |--------------------------------------------------------------------------
  | Mix Asset Management
@@ -11,11 +11,11 @@ const { readFileSync } = require('fs');
  | file for your application, as well as bundling up your JS files.
  |
  */
-mix.setPublicPath('dist');
+mix.setPublicPath("dist");
 mix.webpackConfig({
   plugins: [
     new BannerPlugin({
-      banner: readFileSync('./src/banner.js').toString(),
+      banner: readFileSync("./src/banner.js").toString(),
       raw: true
     })
   ]
@@ -34,12 +34,15 @@ mix.options({
         return file;
       },
       banner: () => {
-        return readFileSync('./src/banner.js').toString();
+        return readFileSync("./src/banner.js").toString();
       }
     }
   }
 });
-mix.js('src/app.js', 'dist/');
+mix.js(
+  process.env.NODE_ENV === "production" ? "src/app.prod.js" : "src/app.dev.js",
+  "dist/app.js"
+);
 
 // Full API
 // mix.js(src, output);
