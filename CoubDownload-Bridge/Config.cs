@@ -24,13 +24,21 @@ namespace CoubDownload_Bridge
         const int MIN_QUALITY = 10;
         const int MAX_FPS = 60;
         const int MIN_FPS = 10;
-        private int _Fps;
+        private int? _Fps;
         [JsonProperty("fps")]
-        public int Fps
+        public int? Fps
         {
             get { return _Fps; }
-            set { _Fps = value < MIN_FPS ? MIN_FPS :
-            value > MAX_FPS ? MAX_FPS : value; }
+            set
+            {
+                if (value == null)
+                {
+                    _Fps = null;
+                    return;
+                }
+                _Fps = value < MIN_FPS ? MIN_FPS :
+          value > MAX_FPS ? MAX_FPS : value;
+            }
         }
         
         public int MaxFps { get; set; } = 100;
@@ -43,9 +51,9 @@ namespace CoubDownload_Bridge
             value > MAX_QUALITY ? MAX_QUALITY : value; }
         }
         [JsonProperty("width")]
-        public int Width { get; set; } = 100;
+        public int? Width { get; set; }
         [JsonProperty("height")]
-        public int Height { get; set; } = 200;
+        public int? Height { get; set; }
         [JsonProperty("match_aspect_ratio")]
         public bool MatchAspectRatio { get; set; } = true;
     }
@@ -66,6 +74,8 @@ namespace CoubDownload_Bridge
         public bool copyFileToClipboard { get; private set; } = false;
         [JsonProperty("spanVideoToAudio")]
         public bool spanVideoToAudio { get; private set; } = false;
+        [JsonProperty("loopCountFallback")]
+        public int? LoopCountFallback { get; set; } = 5;
         [JsonProperty("useSinglePalletePerFrame")]
         public bool useSinglePalletePerFrame { get; private set; } = false;
         [JsonProperty("addCategoryPrefix")]

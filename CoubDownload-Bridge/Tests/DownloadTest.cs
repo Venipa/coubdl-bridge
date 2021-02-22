@@ -20,6 +20,12 @@ namespace CoubDownload_Bridge.Tests
             Assert.AreEqual(true, File.Exists(result));
         }
         [Test]
+        public void LoopTest()
+        {
+            var result = new DownloadCommand().Execute(new Args.DownloadArgs() { download = "2pd8gk", full = true });
+            Assert.AreEqual(true, File.Exists(result));
+        }
+        [Test]
         public void GifTest()
         {
             var result = new DownloadCommand().Execute(new Args.DownloadArgs() { download = "1wjjeh", gif = true });

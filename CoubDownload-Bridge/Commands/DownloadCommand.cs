@@ -92,11 +92,11 @@ namespace CoubDownload_Bridge.Commands
             Debug.WriteLine(this.ffmpegPath);
             var cl = new Coub();
             var data = cl.getCoubById(CoubId).Result;
-            var audio = data.FileVersions.Html5.Audio?.High?.Url ?? data.FileVersions.Html5.Audio?.Med?.Url;
+            var audio = data.AudioVersions?.Template ?? data.FileVersions.Html5.Audio?.High?.Url ?? data.FileVersions.Html5.Audio?.Med?.Url;
             var video = data.FileVersions.Html5.Video.High?.Url ?? data.FileVersions.Html5.Video.Med.Url;
             var wc = new WebClient();
-            var videoInput = Path.Combine(tempPath, $"video_{data.Id}-({Guid.NewGuid().ToString()}).temp");
-            var audioInput = Path.Combine(tempPath, $"audio_{data.Id}-({Guid.NewGuid().ToString()}).temp");
+            var videoInput = Path.Combine(tempPath, $"video_{data.Id}-({Guid.NewGuid().ToString()}).tmp");
+            var audioInput = Path.Combine(tempPath, $"audio_{data.Id}-({Guid.NewGuid().ToString()}).tmp");
 
             var dataCommunity = $"[{(App.Config.addCommunityPrefix ? $"{data.Communities?.Where(x => x.Visible != false)?.FirstOrDefault()?.Title ?? ""}" : "")}]";
             var dataCategory = $"[{(App.Config.addCategoryPrefix ? $"{data.Categories?.Where(x => x.Visible != false && (App.Config.addCommunityPrefix ? (x.Title != dataCommunity) : true))?.FirstOrDefault()?.Title ?? "General"}" : "")}]";
@@ -122,7 +122,8 @@ namespace CoubDownload_Bridge.Commands
                         Directory.CreateDirectory(outputPath);
                     }
                 }
-            } else
+            }
+            else
             {
                 outputPath = Path.Combine(outputPath, "nsfw");
                 if (!Directory.Exists(outputPath))
@@ -209,6 +210,40 @@ namespace CoubDownload_Bridge.Commands
                 var genMode = App.Config.useSinglePalletePerFrame ? "single" : "full";
                 var genWidth = App.Config.gifWidth > 50 && App.Config.gifWidth < 500 ? App.Config.gifWidth : 320;
                 ffmpeg.ExecuteAsync($"-y -i \"{videoInput}\" -filter_complex \"[0:v] scale=w={genWidth}:h=-1,split [a][b];[a] palettegen=stats_mode={genMode} [p];[b][p] paletteuse=new=1\" \"{resultGif}\"").Wait();
+                if (App.Config.AdditionalGIFConversions?.Count > 0)
+                {
+                    string currentConvert = "Additional GIF Converts";
+                    withPercentage = new ProgressBar(PbStyle.SingleLine, 100, currentConvert.Length, '█');
+                    withPercentage.Refresh(0, currentConvert);
+                    try
+                    {
+                        var tasks = App.Config.AdditionalGIFConversions.Select((x, i) =>
+                        {
+                            var tasksDone = 0;
+                            var xHeight = x.Height != null ? x.Height : -1;
+                            var xWidth = x.Width != null ? x.Width : (xHeight == -1 ? 100 : -1);
+                            if (x.Height == null && x.Width == null)
+                            {
+                                throw new Exception("Error, Additional Gif Converter needs atleast 1 dimension");
+                            }
+                            var additionalOutputPath = Path.Combine(outputPath, $"{resultOutputPrefix}{CoubId} ({(xHeight == -1 ? "auto" : xHeight.ToString())}x{(x.MatchAspectRatio ? "auto" : xWidth.ToString())}).gif");
+                            return ffmpeg.ExecuteAsync($"-y -i \"{videoInput}\" -filter_complex \"[0:v] scale=w={(x.MatchAspectRatio ? -1 : xWidth)}:h={(x.MatchAspectRatio ? -1 : xHeight)},{(x.Fps != null ? $"fps={x.Fps}," : "")}split [a][b];[a] palettegen=stats_mode={genMode} [p];[b][p] paletteuse=new=1\" \"{additionalOutputPath}\"").ContinueWith(r =>
+                            {
+                                withPercentage.Refresh(++tasksDone / App.Config.AdditionalGIFConversions.Count, currentConvert);
+                            });
+                        });
+                        Task.WaitAll(tasks.ToArray());
+                        withPercentage.Refresh(withPercentage.Max, currentConvert);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (Debugger.IsAttached)
+                        {
+                            throw ex;
+                        }
+                        return ex.Message;
+                    }
+                }
                 try
                 {
                     File.Delete(videoInput);
@@ -231,9 +266,12 @@ namespace CoubDownload_Bridge.Commands
             {
                 var vid = new MediaFile(videoInput);
                 var aud = new MediaFile(audioInput);
-                if (vid.FileInfo.Length >= aud.FileInfo.Length)
+                var audioDuration = ffmpeg.GetMetaDataAsync(aud).Result?.Duration;
+                var videoDuration = ffmpeg.GetMetaDataAsync(vid).Result?.Duration;
+                if (audioDuration.HasValue && videoDuration.HasValue && audioDuration.Value.TotalMilliseconds/1.5 < videoDuration.Value.TotalMilliseconds)
                 {
-                    ffmpeg.ExecuteAsync($"-i \"{videoInput}\" -stream_loop -1 -i {audioInput} -c:v copy -shortest -map 0:v:0 -map 1:a:0 -y \"{resultOutput}\"").Wait();
+                    Console.WriteLine($"Unable to loop video, audio is shorter than video.");
+                    Task.Delay(5000).Wait();
                 }
                 else
                 {
@@ -243,7 +281,8 @@ namespace CoubDownload_Bridge.Commands
             else if (audio != null)
             {
                 ffmpeg.ExecuteAsync($"-i \"{videoInput}\" -i {audioInput} -codec copy -shortest \"{resultOutput}\"").Wait();
-            } else
+            }
+            else
             {
                 ffmpeg.ExecuteAsync($"-i \"{videoInput}\" -codec copy -shortest \"{resultOutput}\"").Wait();
             }
@@ -255,7 +294,7 @@ namespace CoubDownload_Bridge.Commands
             }
             catch { }
             overallProgress.Next("Overall Progress");
-            if (App.Config.copyFileToClipboard)
+            if (File.Exists(resultOutput) && App.Config.copyFileToClipboard)
             {
                 Dispatcher.CurrentDispatcher.Invoke(() =>
                 {
