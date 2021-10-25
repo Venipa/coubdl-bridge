@@ -280,7 +280,7 @@ namespace CoubDownload_Bridge.Commands
             }
             else if (audio != null)
             {
-                ffmpeg.ExecuteAsync($"-i \"{videoInput}\" -i {audioInput} -codec copy -shortest \"{resultOutput}\"").Wait();
+                ffmpeg.ExecuteAsync($"-i \"{videoInput}\" -i {audioInput} -c:v copy -c:a aac -shortest \"{resultOutput}\"").Wait();
             }
             else
             {
