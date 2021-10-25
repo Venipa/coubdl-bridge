@@ -18,8 +18,8 @@ jobs:
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v1.0.5
     - name: Restore NuGet Packages
-      run: nuget restore
+      run: nuget restore CoubDownload-Bridge.sln
     - uses: actions/checkout@v1
     - name: Build
       run: |
-        msbuild /t:Restore,Build /p:Configuration=Release
+        msbuild CoubDownload-Bridge.sln /t:Restore,Build /p:Configuration=Release
