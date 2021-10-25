@@ -82,6 +82,8 @@ namespace CoubDownload_Bridge
         public bool addCategoryPrefix { get; private set; } = true;
         [JsonProperty("addCommunityPrefix")]
         public bool addCommunityPrefix { get; private set; } = false;
+        [JsonProperty("customFilenameFormat")]
+        public string customFilenameFormat { get; private set; } = "[%category%]%id%";
         [JsonProperty("gifWidth")]
         public int gifWidth { get; set; } = 320;
         [JsonProperty("additional_gif_conversions")]

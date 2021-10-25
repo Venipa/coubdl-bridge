@@ -14,6 +14,7 @@ using Konsole;
 using System.Text;
 using System.Collections.Generic;
 using System.Windows.Threading;
+using CoubDownload_Bridge.Utils;
 
 namespace CoubDownload_Bridge.Commands
 {
@@ -98,19 +99,14 @@ namespace CoubDownload_Bridge.Commands
             var videoInput = Path.Combine(tempPath, $"video_{data.Id}-({Guid.NewGuid().ToString()}).tmp");
             var audioInput = Path.Combine(tempPath, $"audio_{data.Id}-({Guid.NewGuid().ToString()}).tmp");
 
-            var dataCommunity = $"[{(App.Config.addCommunityPrefix ? $"{data.Communities?.Where(x => x.Visible != false)?.FirstOrDefault()?.Title ?? ""}" : "")}]";
-            var dataCategory = $"[{(App.Config.addCategoryPrefix ? $"{data.Categories?.Where(x => x.Visible != false && (App.Config.addCommunityPrefix ? (x.Title != dataCommunity) : true))?.FirstOrDefault()?.Title ?? "General"}" : "")}]";
+            var dataCommunity = $"{(App.Config.addCommunityPrefix ? $"{data.Communities?.Where(x => x.Visible != false)?.FirstOrDefault()?.Title ?? ""}" : "")}";
+            var dataCategory = $"{(App.Config.addCategoryPrefix ? $"{data.Categories?.Where(x => x.Visible != false && (App.Config.addCommunityPrefix ? (x.Title != dataCommunity) : true))?.FirstOrDefault()?.Title ?? "General"}" : "")}";
             dataCommunity = dataCommunity.EndsWith("[]") ? "" : dataCommunity;
             dataCategory = dataCategory.EndsWith("[]") ? "" : dataCategory;
             var resultOutputPrefix = new StringBuilder();
-            if (App.Config.addCommunityPrefix)
-            {
-                resultOutputPrefix.Append(dataCommunity);
-            }
-            if (App.Config.addCategoryPrefix && resultOutputPrefix.ToString() != dataCommunity)
-            {
-                resultOutputPrefix.Append(dataCategory);
-            }
+            var category = dataCategory;
+            var community = dataCommunity;
+            var fileFormatName = App.Config.customFilenameFormat ?? "[%category%]%id%";
             if (!App.Config.nsfwFolderEnabled || data.Communities?.Count(x => x.Title?.ToLower().IndexOf("nsfw") != -1) == 0 ||
                 data.Categories?.Count(x => x.Title?.ToLower().IndexOf("nsfw") != -1) == 0)
             {
@@ -131,9 +127,17 @@ namespace CoubDownload_Bridge.Commands
                     Directory.CreateDirectory(outputPath);
                 }
             }
-            var resultOutput = Path.Combine(outputPath, $"{resultOutputPrefix}{CoubId}{(args.full ? "-full" : "")}.mp4");
-            var resultOutputAudio = Path.Combine(outputPath, $"{resultOutputPrefix}{CoubId}.mp3");
-            var resultGif = Path.Combine(outputPath, $"{resultOutputPrefix}{CoubId}.gif");
+            var formatVariables = new Tuple<string, string>[]
+            {
+                Tuple.Create("id", CoubId),
+                Tuple.Create("category", category),
+                Tuple.Create("community", community),
+                Tuple.Create("name", data.Title.SanitizeFilename())
+            };
+            var outFileName = fileFormatName.ReplaceVariables(formatVariables);
+            var resultOutput = Path.Combine(outputPath, $"{outFileName}{(args.full ? "-full" : "")}.mp4");
+            var resultOutputAudio = Path.Combine(outputPath, $"{outFileName}.mp3");
+            var resultGif = Path.Combine(outputPath, $"{outFileName}.gif");
 
             var withPercentage = new ProgressBar(PbStyle.SingleLine, 100, 20, '█');
             var currentType = CoubDownloadType.Video;
