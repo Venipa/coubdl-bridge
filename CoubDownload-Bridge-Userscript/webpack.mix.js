@@ -1,6 +1,31 @@
 let mix = require("laravel-mix");
-const { BannerPlugin } = require("webpack");
+const { BannerPlugin, DefinePlugin } = require("webpack");
 const { readFileSync } = require("fs");
+const pkg = require("./package.json");
+const path = require("path");
+const isDev = process.env.NODE_ENV !== "production";
+const replaceVariables = (source, obj) => {
+  let newSource = String(source);
+  Object.entries(obj).forEach(([name, value]) => {
+    newSource = newSource.split(`{{${name}}}`).join(value);
+  });
+  return newSource;
+};
+const outputFile = isDev ? "dist/app.js" : path.resolve("dist", pkg.main);
+let appStyle;
+let bannerContent;
+const createHashVersion = () =>
+  pkg.version + "-" + (Math.random() + 1).toString(36).substring(7);
+let varContext = {
+  ...pkg,
+  grant: "none",
+};
+if (isDev) varContext.version = createHashVersion();
+bannerContent = replaceVariables(
+  readFileSync("./src/banner.template").toString(),
+  varContext
+);
+appStyle = readFileSync("./src/style/app.css").toString();
 /*
  |--------------------------------------------------------------------------
  | Mix Asset Management
@@ -11,38 +36,41 @@ const { readFileSync } = require("fs");
  | file for your application, as well as bundling up your JS files.
  |
  */
+mix.before(() => {
+  if (isDev) varContext.version = createHashVersion();
+  appStyle = readFileSync("./src/style/app.css").toString();
+});
 mix.setPublicPath("dist");
 mix.webpackConfig({
   plugins: [
+    new DefinePlugin({
+      COUB_DL_CONTEXT: JSON.stringify({
+        name: pkg.name,
+        description: pkg.description,
+        repository: pkg.repository,
+        production: process.env.NODE_ENV === "production",
+        version: pkg.version,
+        style: appStyle,
+      }),
+    }),
     new BannerPlugin({
-      banner: readFileSync("./src/banner.js").toString(),
-      raw: true
-    })
-  ]
+      banner: () => bannerContent,
+      raw: true,
+    }),
+  ],
 });
 mix.options({
   terser: {
-    // terserOptions: {
-    //   output: {
-    //     comments: /^\**!|@preserve|@license|@cc_on/i,
-    //   },
-    // },
-    // extractComments: false
     extractComments: {
       condition: true,
-      filename: (file, data) => {
-        return file;
+      filename: ({ filename }) => {
+        return filename;
       },
-      banner: () => {
-        return readFileSync("./src/banner.js").toString();
-      }
-    }
-  }
+      banner: () => bannerContent,
+    },
+  },
 });
-mix.js(
-  process.env.NODE_ENV === "production" ? "src/app.prod.js" : "src/app.dev.js",
-  "dist/app.js"
-);
+mix.ts(!isDev ? "src/app.prod.ts" : "src/app.dev.ts", outputFile);
 
 // Full API
 // mix.js(src, output);

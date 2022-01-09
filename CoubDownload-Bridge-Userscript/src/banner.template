@@ -1,0 +1,14 @@
+// ==UserScript==
+// @name         {{name}}
+// @namespace    {{repository}}
+// @version      {{version}}
+// @description  {{description}}
+// @author       {{author}}
+// @match        https://*.coub.com/*
+// @match        https://coub.com/*
+// @grant        {{grant}}
+// @license      {{license}}
+// ==/UserScript==
+// ==OpenUserJS==
+// @author {{author}}
+// ==/OpenUserJS==
