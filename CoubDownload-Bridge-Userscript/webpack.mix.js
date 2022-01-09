@@ -20,6 +20,7 @@ const createHashVersion = () =>
 let varContext = {
   ...pkg,
   grant: "none",
+  displayName: pkg.userscript.name
 };
 if (isDev) varContext.version = createHashVersion();
 bannerContent = replaceVariables(

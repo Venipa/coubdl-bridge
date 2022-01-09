@@ -6,6 +6,10 @@
   "repository": "https://github.com/Venipa/coubdl-bridge",
   "author": "Venipa",
   "license": "MIT",
+  "userscript": {
+    "name": "Coub Bridge",
+    "source": "coub-bridge.user.js"
+  },
   "scripts": {
     "dev": "mix watch",
     "prod": "mix --production"
