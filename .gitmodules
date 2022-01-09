@@ -1,0 +1,3 @@
+[submodule "userscript"]
+	path = userscript
+	url = git@github.com:Venipa/coubdl-bridge-userscript.git
