@@ -3,6 +3,7 @@ const { BannerPlugin, DefinePlugin } = require("webpack");
 const { readFileSync } = require("fs");
 const pkg = require("./package.json");
 const path = require("path");
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const isDev = process.env.NODE_ENV !== "production";
 const replaceVariables = (source, obj) => {
   let newSource = String(source);
@@ -42,6 +43,14 @@ mix.before(() => {
 });
 mix.setPublicPath("dist");
 mix.webpackConfig({
+  optimization: {
+    minimize: !isDev,
+    minimizer: [
+      new UglifyJsPlugin({
+        exclude: /\/excludes/,
+      }),
+    ]
+  },
   plugins: [
     new DefinePlugin({
       COUB_DL_CONTEXT: JSON.stringify({
