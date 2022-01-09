@@ -43,14 +43,6 @@ mix.before(() => {
 });
 mix.setPublicPath("dist");
 mix.webpackConfig({
-  optimization: {
-    minimize: !isDev,
-    minimizer: [
-      new UglifyJsPlugin({
-        exclude: /\/excludes/,
-      }),
-    ]
-  },
   plugins: [
     new DefinePlugin({
       COUB_DL_CONTEXT: JSON.stringify({
@@ -64,7 +56,7 @@ mix.webpackConfig({
     }),
     new BannerPlugin({
       banner: () => bannerContent,
-      raw: true,
+      raw: true
     }),
   ],
 });
@@ -75,7 +67,7 @@ mix.options({
       filename: ({ filename }) => {
         return filename;
       },
-      banner: () => bannerContent,
+      banner: bannerContent,
     },
   },
 });

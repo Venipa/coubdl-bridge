@@ -1,6 +1,7 @@
 // ==UserScript==
 // @name         {{name}}
 // @namespace    {{repository}}
+// @copyright    2021, {{name}} ({{repository}})
 // @version      {{version}}
 // @description  {{description}}
 // @author       {{author}}
