@@ -7,7 +7,7 @@
   "author": "Venipa",
   "license": "MIT",
   "userscript": {
-    "name": "Coub Bridge",
+    "name": "Coub-Bridge",
     "source": "coub-bridge.user.js"
   },
   "scripts": {
